@@ -2,7 +2,7 @@ unit KM_ScriptingTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Defaults, KM_AITypes, KM_AIDefensePos, KM_Points;
+  KM_Defaults, KM_AITypes, KM_AIAttacks, KM_AIDefensePos, KM_Points;
 
 type
   TKMScriptEventType = (
@@ -100,6 +100,8 @@ type
     function ToStr: string;
   end;
 
+  TKMAIAttackInfoArray = array of TKMAIAttackInfo;
+
   //* AI defence position setup
   TKMDefencePositionInfo = packed record
     UID: Integer;
@@ -118,6 +120,7 @@ const
   SCRIPT_LOG_EXT = '.log.txt';
 
 
+function AIAttackToInfo(const aAttack: TKMAIAttack): TKMAIAttackInfo;
 function AIDefencePositionToInfo(aDefencePosition: TAIDefencePosition): TKMDefencePositionInfo;
 
 
@@ -148,6 +151,25 @@ begin
                     GetEnumName(TypeInfo(TKMDirection), Integer(Dir)),
                     GetEnumName(TypeInfo(TKMGroupType), Integer(GroupType)),
                     GetEnumName(TypeInfo(TKMAIDefencePosType), Integer(PositionType))]);
+end;
+
+
+// Range is not exposed to scripts, since the AI does not support it yet (see TKMAIAttacks.CanOccur)
+function AIAttackToInfo(const aAttack: TKMAIAttack): TKMAIAttackInfo;
+begin
+  Result := Default(TKMAIAttackInfo);
+  Result.UID                 := aAttack.UID;
+  Result.AttackType          := aAttack.AttackType;
+  Result.HasOccured          := aAttack.HasOccured;
+  Result.Delay               := aAttack.Delay;
+  Result.TotalMen            := aAttack.TotalMen;
+  Result.MeleeGroupCount     := aAttack.GroupAmounts[gtMelee];
+  Result.AntiHorseGroupCount := aAttack.GroupAmounts[gtAntiHorse];
+  Result.RangedGroupCount    := aAttack.GroupAmounts[gtRanged];
+  Result.MountedGroupCount   := aAttack.GroupAmounts[gtMounted];
+  Result.RandomGroups        := aAttack.RandomGroups;
+  Result.Target              := aAttack.Target;
+  Result.CustomPosition      := aAttack.CustomPosition;
 end;
 
 

@@ -437,6 +437,7 @@ begin
         'Target: TKMAIAttackTarget; ' +
         'CustomPosition: TKMPoint; ' +
       'end;');
+    Sender.AddTypeS('TKMAIAttackInfoArray', 'array of TKMAIAttackInfo');
     Sender.AddTypeS('TKMDefencePositionInfo', 'record ' +
         'UID: Integer; ' +
         'X, Y: Integer; ' +
@@ -464,6 +465,9 @@ begin
     //*Area-States-Check*//
     RegisterMethodCheck(c, 'function  AAIAttackHouseTypesGet(aHand: Byte): TKMHouseTypeSet');
     RegisterMethodCheck(c, 'function  AIArmyType(aHand: Byte): TKMArmyType');
+    RegisterMethodCheck(c, 'function  AIAttackGetAll(aHand: Integer): TKMAIAttackInfoArray');
+    RegisterMethodCheck(c, 'function  AIAttackGetByIndex(aHand: Integer; aIndex: Integer): TKMAIAttackInfo');
+    RegisterMethodCheck(c, 'function  AIAttackGetByUID(aHand: Integer; aAIAttackUID: Integer): TKMAIAttackInfo');
     RegisterMethodCheck(c, 'function  AIAutoAttack(aHand: Byte): Boolean');
     RegisterMethodCheck(c, 'function  AIAutoAttackRange(aHand: Byte): Integer');
     RegisterMethodCheck(c, 'function  AIAutoBuild(aHand: Byte): Boolean');
@@ -639,6 +643,7 @@ begin
     RegisterMethodCheck(c, 'function  PlayerVictorious(aHand: Byte): Boolean');
     RegisterMethodCheck(c, 'function  PlayerWareDistribution(aHand: Byte; aWareType: Byte; aHouseType: Byte): Byte');
     RegisterMethodCheck(c, 'function  PlayerWareDistributionEx(aHand: Integer; aWareType: TKMWareType; aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  StatAIAttacksCount(aHand: Integer): Integer');
     RegisterMethodCheck(c, 'function  StatAIDefencePositionsCount(aHand: Byte): Integer');
     RegisterMethodCheck(c, 'function  StatArmyCount(aHand: Byte): Integer');
     RegisterMethodCheck(c, 'function  StatArmyPower(aHand: Byte): Single');
@@ -1234,6 +1239,9 @@ begin
       //*Area-States-Reg*//
       RegisterMethod(@TKMScriptStates.AAIAttackHouseTypesGet, 'AAIAttackHouseTypesGet');
       RegisterMethod(@TKMScriptStates.AIArmyType, 'AIArmyType');
+      RegisterMethod(@TKMScriptStates.AIAttackGetAll, 'AIAttackGetAll');
+      RegisterMethod(@TKMScriptStates.AIAttackGetByIndex, 'AIAttackGetByIndex');
+      RegisterMethod(@TKMScriptStates.AIAttackGetByUID, 'AIAttackGetByUID');
       RegisterMethod(@TKMScriptStates.AIAutoAttack, 'AIAutoAttack');
       RegisterMethod(@TKMScriptStates.AIAutoAttackRange, 'AIAutoAttackRange');
       RegisterMethod(@TKMScriptStates.AIAutoBuild, 'AIAutoBuild');
@@ -1408,6 +1416,7 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PlayerVictorious');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PlayerWareDistribution');
       RegisterMethod(@TKMScriptStates.PlayerWareDistributionEx, 'PlayerWareDistributionEx');
+      RegisterMethod(@TKMScriptStates.StatAIAttacksCount, 'StatAIAttacksCount');
       RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount, 'StatAIDefencePositionsCount');
       RegisterMethod(@TKMScriptStates.StatArmyCount, 'StatArmyCount');
       RegisterMethod(@TKMScriptStates.StatArmyPower, 'StatArmyPower');

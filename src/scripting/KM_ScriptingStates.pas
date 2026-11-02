@@ -23,6 +23,9 @@ type
   public
     function AAIAttackHouseTypesGet(aHand: Byte): TKMHouseTypeSet;
     function AIArmyType(aHand: Byte): TKMArmyType;
+    function AIAttackGetAll(aHand: Integer): TKMAIAttackInfoArray;
+    function AIAttackGetByIndex(aHand, aIndex: Integer): TKMAIAttackInfo;
+    function AIAttackGetByUID(aHand, aAIAttackUID: Integer): TKMAIAttackInfo;
     function AIAutoAttack(aHand: Byte): Boolean;
     function AIAutoAttackRange(aHand: Byte): Integer;
     function AIAutoBuild(aHand: Byte): Boolean;
@@ -216,6 +219,7 @@ type
     function PlayerWareDistribution(aHand, aWareType, aHouseType: Byte): Byte;
     function PlayerWareDistributionEx(aHand: Integer; aWareType: TKMWareType; aHouseType: TKMHouseType): Integer;
 
+    function StatAIAttacksCount(aHand: Integer): Integer;
     function StatAIDefencePositionsCount(aHand: Byte): Integer;
     function StatArmyCount(aHand: Byte): Integer;
     function StatArmyPower(aHand: Byte): Single;
@@ -341,6 +345,75 @@ begin
       Result := gHands[aHand].AI.Setup.ArmyType
     else
       LogIntParamWarn('States.AIArmyType', [aHand]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 16421+
+//* Gets the parameters of all AI attacks of the specified player
+//* Returns empty array if wrong handId was passed
+function TKMScriptStates.AIAttackGetAll(aHand: Integer): TKMAIAttackInfoArray;
+var
+  I: Integer;
+begin
+  try
+    Result := nil;
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled then
+    begin
+      SetLength(Result, gHands[aHand].AI.General.Attacks.Count);
+      for I := 0 to gHands[aHand].AI.General.Attacks.Count - 1 do
+        Result[I] := AIAttackToInfo(gHands[aHand].AI.General.Attacks[I]);
+    end
+    else
+      LogIntParamWarn('States.AIAttackGetAll', [aHand]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 16421+
+//* Gets the parameters of AI attack
+//* aIndex: index in the list of all AI attacks for the specified player
+//* Returns attack parameters, or empty record (with UID = 0) if wrong arguments were passed
+function TKMScriptStates.AIAttackGetByIndex(aHand, aIndex: Integer): TKMAIAttackInfo;
+begin
+  try
+    Result := Default(TKMAIAttackInfo);
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled
+    and InRange(aIndex, 0, gHands[aHand].AI.General.Attacks.Count - 1) then
+      Result := AIAttackToInfo(gHands[aHand].AI.General.Attacks[aIndex])
+    else
+      LogIntParamWarn('States.AIAttackGetByIndex', [aHand, aIndex]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 16421+
+//* Gets the parameters of AI attack
+//* aAIAttackUID: attack UID, as returned by Actions.AIAttackAdd / Actions.AIAttackAddEx
+//* Returns attack parameters, or empty record (with UID = 0) if wrong arguments were passed or attack was not found
+function TKMScriptStates.AIAttackGetByUID(aHand, aAIAttackUID: Integer): TKMAIAttackInfo;
+var
+  attackIndex: Integer;
+begin
+  try
+    Result := Default(TKMAIAttackInfo);
+    attackIndex := -1;
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled then
+      attackIndex := gHands[aHand].AI.General.Attacks.IndexOfUID(aAIAttackUID);
+
+    if attackIndex <> -1 then
+      Result := AIAttackToInfo(gHands[aHand].AI.General.Attacks[attackIndex])
+    else
+      LogIntParamWarn('States.AIAttackGetByUID', [aHand, aAIAttackUID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1383,6 +1456,24 @@ begin
       Result := False;
       LogIntParamWarn('States.ConnectedByWalking', [X1, Y1, X2, Y2]);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 16421+
+//* How many attacks AI player has
+//* Result: Attacks count
+function TKMScriptStates.StatAIAttacksCount(aHand: Integer): Integer;
+begin
+  try
+    Result := 0;
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled then
+      Result := gHands[aHand].AI.General.Attacks.Count
+    else
+      LogIntParamWarn('States.StatAIAttacksCount', [aHand]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

@@ -42,6 +42,7 @@ type
     function AddAttack(aAttackType: TKMAIAttackType; aDelay: Cardinal; aTotalMen: Integer;
                        aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount: Word;
                        aRandomGroups: Boolean; aTarget: TKMAIAttackTarget; aRange: Integer; aCustomPosition: TKMPoint): Integer; overload;
+    function IndexOfUID(aAttackUID: Integer): Integer;
     function Remove(aAttackUID: Integer): Boolean;
     procedure Delete(aIndex: Integer);
     function CanOccur(aIndex: Integer; const aMenAvailable: TKMGroupTypeArray; const aGroupsAvailable: TKMGroupTypeArray; aTick: Cardinal): Boolean;
@@ -141,20 +142,29 @@ begin
 end;
 
 
+//Result - index of the attack with given UID, or -1 if there is no such attack
+function TKMAIAttacks.IndexOfUID(aAttackUID: Integer): Integer;
+var
+  I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    if fAttacks[I].UID = aAttackUID then
+      Exit(I);
+
+  Result := -1;
+end;
+
+
 //Remove AIAttack by its ID
 //Result - True, if delete was succesfull, False, if no AIAttack was found
 function TKMAIAttacks.Remove(aAttackUID: Integer): Boolean;
 var
-  I: Integer;
+  attackIndex: Integer;
 begin
-  Result := False;
-  for I := 0 to fCount - 1 do
-    if fAttacks[I].UID = aAttackUID then
-    begin
-      Delete(I);
-      Result := True;
-      Exit;
-    end;
+  attackIndex := IndexOfUID(aAttackUID);
+  Result := attackIndex <> -1;
+  if Result then
+    Delete(attackIndex);
 end;
 
 
