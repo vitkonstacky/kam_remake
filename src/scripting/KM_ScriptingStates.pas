@@ -490,13 +490,13 @@ end;
 //* Version: 13900
 //* Gets the parameters of AI defence position
 //* aIndex: index in the list of all defence positions for the specified player
-//* Returns defence position parameters
+//* Returns defence position parameters, or empty record (with UID = 0) if wrong arguments were passed
 function TKMScriptStates.AIDefencePositionGetByIndex(aHand, aIndex: Integer): TKMDefencePositionInfo;
 var
   DP: TAIDefencePosition;
 begin
-  //todo -cPractical: Should return default(TKMDefencePositionInfo) in case of bad arguments
   try
+    Result := Default(TKMDefencePositionInfo);
     if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled
     and InRange(aIndex, 0, gHands[aHand].AI.General.DefencePositions.Count - 1) then
     begin
