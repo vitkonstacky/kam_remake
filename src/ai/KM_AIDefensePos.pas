@@ -59,6 +59,7 @@ type
     property Count: Integer read GetCount;
     procedure Delete(aIndex: Integer);
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
+    function IndexOfUID(aUID: Integer): Integer;
     function GetBacklineCount: Integer;
     function AverageUnitsPerGroup: Integer;
 
@@ -237,6 +238,19 @@ end;
 function TAIDefencePositions.GetCount: Integer;
 begin
   Result := fPositions.Count;
+end;
+
+
+//Result - index of the position with given UID, or -1 if there is no such position
+function TAIDefencePositions.IndexOfUID(aUID: Integer): Integer;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    if Positions[I].UID = aUID then
+      Exit(I);
+
+  Result := -1;
 end;
 
 

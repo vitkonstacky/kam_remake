@@ -16,6 +16,7 @@
 
 KaM Remake Beta r_____ []
 ------------------------------
++ Added dynamic script States to read AI defence positions: AIDefencePositionGetAll, AIDefencePositionGetByUID
 + Fixed AIDefencePositionGetByIndex state returning uninitialized data on invalid arguments
 + Fixed terrain connectivity after applying terrain brushes from dynamic script
 + Fixed error in watching replays without AI opponents

@@ -30,7 +30,9 @@ type
     function AIAutoRepair(aHand: Byte): Boolean;
     function AIDefendAllies(aHand: Byte): Boolean;
     procedure AIDefencePositionGet(aHand, aID: Byte; out aX, aY: Integer; out aGroupType: Byte; out aRadius: Integer; out aDefType: Byte);
+    function AIDefencePositionGetAll(aHand: Integer): TKMDefencePositionInfoArray;
     function AIDefencePositionGetByIndex(aHand, aIndex: Integer): TKMDefencePositionInfo;
+    function AIDefencePositionGetByUID(aHand, aUID: Integer): TKMDefencePositionInfo;
     function AIEquipRate(aHand: Byte; aType: Byte): Integer;
     procedure AIGroupsFormationGet(aHand, aType: Byte; out aCount, aColumns: Integer);
     procedure AIGroupsFormationGetEx(aHand: Integer; aGroupType: TKMGroupType; out aCount, aColumns: Integer);
@@ -487,6 +489,30 @@ begin
 end;
 
 
+//* Version: 16421+
+//* Gets the parameters of all AI defence positions of the specified player
+//* Returns empty array if wrong handId was passed
+function TKMScriptStates.AIDefencePositionGetAll(aHand: Integer): TKMDefencePositionInfoArray;
+var
+  I: Integer;
+begin
+  try
+    Result := nil;
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled then
+    begin
+      SetLength(Result, gHands[aHand].AI.General.DefencePositions.Count);
+      for I := 0 to gHands[aHand].AI.General.DefencePositions.Count - 1 do
+        Result[I] := AIDefencePositionToInfo(gHands[aHand].AI.General.DefencePositions[I]);
+    end
+    else
+      LogIntParamWarn('States.AIDefencePositionGetAll', [aHand]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 13900
 //* Gets the parameters of AI defence position
 //* aIndex: index in the list of all defence positions for the specified player
@@ -502,22 +528,35 @@ begin
     begin
       DP := gHands[aHand].AI.General.DefencePositions[aIndex];
       if DP <> nil then
-      begin
-        Result.UID := DP.UID;
-        Result.X := DP.Position.Loc.X;
-        Result.Y := DP.Position.Loc.Y;
-        if DP.CurrentGroup = nil then
-          Result.GroupID := -1
-        else
-          Result.GroupID := DP.CurrentGroup.UID;
-        Result.Radius := DP.Radius;
-        Result.Dir := DP.Position.Dir;
-        Result.GroupType := DP.GroupType;
-        Result.PositionType := DP.DefenceType;
-      end;
+        Result := AIDefencePositionToInfo(DP);
     end
     else
       LogIntParamWarn('States.AIDefencePositionGetByIndex', [aHand, aIndex]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 16421+
+//* Gets the parameters of AI defence position
+//* aUID: defence position UID, as returned by Actions.AIDefencePositionAdd / Actions.AIDefencePositionAddEx
+//* Returns defence position parameters, or empty record (with UID = 0) if wrong arguments were passed or position was not found
+function TKMScriptStates.AIDefencePositionGetByUID(aHand, aUID: Integer): TKMDefencePositionInfo;
+var
+  positionIndex: Integer;
+begin
+  try
+    Result := Default(TKMDefencePositionInfo);
+    positionIndex := -1;
+    if InRange(aHand, 0, gHands.Count - 1) and gHands[aHand].Enabled then
+      positionIndex := gHands[aHand].AI.General.DefencePositions.IndexOfUID(aUID);
+
+    if positionIndex <> -1 then
+      Result := AIDefencePositionToInfo(gHands[aHand].AI.General.DefencePositions[positionIndex])
+    else
+      LogIntParamWarn('States.AIDefencePositionGetByUID', [aHand, aUID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

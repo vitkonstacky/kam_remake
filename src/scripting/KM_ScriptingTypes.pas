@@ -2,7 +2,7 @@ unit KM_ScriptingTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Defaults, KM_AITypes, KM_Points;
+  KM_Defaults, KM_AITypes, KM_AIDefensePos, KM_Points;
 
 type
   TKMScriptEventType = (
@@ -82,17 +82,6 @@ type
   // Set exported to PascalScript record type as packed.
   // PascalScript use packed records alignment by default,
   // thus without it in Delphi we could get garbage in the fields if they are not aligned same way as in PS
-  //* AI defence position setup
-  TKMDefencePositionInfo = packed record
-    UID: Integer;
-    X, Y: Integer;
-    Radius: Integer;
-    GroupID: Integer;
-    Dir: TKMDirection;
-    GroupType: TKMGroupType;
-    PositionType: TKMAIDefencePosType;
-    function ToStr: string;
-  end;
 
   //* AI attack setup
   TKMAIAttackInfo = packed record
@@ -111,24 +100,30 @@ type
     function ToStr: string;
   end;
 
+  //* AI defence position setup
+  TKMDefencePositionInfo = packed record
+    UID: Integer;
+    X, Y: Integer;
+    Radius: Integer;
+    GroupID: Integer;
+    Dir: TKMDirection;
+    GroupType: TKMGroupType;
+    PositionType: TKMAIDefencePosType;
+    function ToStr: string;
+  end;
+
+  TKMDefencePositionInfoArray = array of TKMDefencePositionInfo;
+
 const
   SCRIPT_LOG_EXT = '.log.txt';
+
+
+function AIDefencePositionToInfo(aDefencePosition: TAIDefencePosition): TKMDefencePositionInfo;
 
 
 implementation
 uses
   SysUtils, TypInfo;
-
-
-{ TKMDefencePositionInfo }
-function TKMDefencePositionInfo.ToStr: string;
-begin
-  Result := Format('[%d:%d R=%d %s %s %s]',
-                   [X, Y, Radius,
-                    GetEnumName(TypeInfo(TKMDirection), Integer(Dir)),
-                    GetEnumName(TypeInfo(TKMGroupType), Integer(GroupType)),
-                    GetEnumName(TypeInfo(TKMAIDefencePosType), Integer(PositionType))]);
-end;
 
 
 { TKMAIAttackInfo }
@@ -145,5 +140,32 @@ begin
 end;
 
 
-end.
+{ TKMDefencePositionInfo }
+function TKMDefencePositionInfo.ToStr: string;
+begin
+  Result := Format('[%d:%d R=%d %s %s %s]',
+                   [X, Y, Radius,
+                    GetEnumName(TypeInfo(TKMDirection), Integer(Dir)),
+                    GetEnumName(TypeInfo(TKMGroupType), Integer(GroupType)),
+                    GetEnumName(TypeInfo(TKMAIDefencePosType), Integer(PositionType))]);
+end;
 
+
+function AIDefencePositionToInfo(aDefencePosition: TAIDefencePosition): TKMDefencePositionInfo;
+begin
+  Result := Default(TKMDefencePositionInfo);
+  Result.UID          := aDefencePosition.UID;
+  Result.X            := aDefencePosition.Position.Loc.X;
+  Result.Y            := aDefencePosition.Position.Loc.Y;
+  if aDefencePosition.CurrentGroup = nil then
+    Result.GroupID    := -1
+  else
+    Result.GroupID    := aDefencePosition.CurrentGroup.UID;
+  Result.Radius       := aDefencePosition.Radius;
+  Result.Dir          := aDefencePosition.Position.Dir;
+  Result.GroupType    := aDefencePosition.GroupType;
+  Result.PositionType := aDefencePosition.DefenceType;
+end;
+
+
+end.

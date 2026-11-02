@@ -446,6 +446,7 @@ begin
         'GroupType: TKMGroupType; ' +
         'PositionType: TKMAIDefencePosType; ' +
       'end;');
+    Sender.AddTypeS('TKMDefencePositionInfoArray', 'array of TKMDefencePositionInfo');
     Sender.AddTypeS('TKMGroupTypeSet', 'set of TKMGroupType');
     Sender.AddTypeS('TKMHouseTypeSet', 'set of TKMHouseType');
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
@@ -470,7 +471,9 @@ begin
     RegisterMethodCheck(c, 'function  AIAutoRepair(aHand: Byte): Boolean');
     RegisterMethodCheck(c, 'procedure AIDefencePositionGet(aHand: Byte; aID: Byte; out aX, aY: Integer; out aGroupType: Byte; out aRadius: Integer; ' +
       'out aDefType: Byte)');
+    RegisterMethodCheck(c, 'function  AIDefencePositionGetAll(aHand: Integer): TKMDefencePositionInfoArray');
     RegisterMethodCheck(c, 'function  AIDefencePositionGetByIndex(aHand: Integer; aIndex: Integer): TKMDefencePositionInfo');
+    RegisterMethodCheck(c, 'function  AIDefencePositionGetByUID(aHand: Integer; aUID: Integer): TKMDefencePositionInfo');
     RegisterMethodCheck(c, 'function  AIDefendAllies(aHand: Byte): Boolean');
     RegisterMethodCheck(c, 'function  AIEquipRate(aHand: Byte; aType: Byte): Integer');
     RegisterMethodCheck(c, 'procedure AIGroupsFormationGet(aHand: Byte; aType: Byte; out aCount: Integer; out aColumns: Integer)');
@@ -1237,7 +1240,9 @@ begin
       RegisterMethod(@TKMScriptStates.AIAutoDefence, 'AIAutoDefence');
       RegisterMethod(@TKMScriptStates.AIAutoRepair, 'AIAutoRepair');
       RegisterMethod(@TKMScriptStates.AIDefencePositionGet, 'AIDefencePositionGet');
+      RegisterMethod(@TKMScriptStates.AIDefencePositionGetAll, 'AIDefencePositionGetAll');
       RegisterMethod(@TKMScriptStates.AIDefencePositionGetByIndex, 'AIDefencePositionGetByIndex');
+      RegisterMethod(@TKMScriptStates.AIDefencePositionGetByUID, 'AIDefencePositionGetByUID');
       RegisterMethod(@TKMScriptStates.AIDefendAllies, 'AIDefendAllies');
       RegisterMethod(@TKMScriptStates.AIEquipRate, 'AIEquipRate');
       RegisterMethod(@TKMScriptStates.AIGroupsFormationGet, 'AIGroupsFormationGet');
